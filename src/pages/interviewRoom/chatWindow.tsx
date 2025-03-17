@@ -1,305 +1,10 @@
-// import { useState, useEffect, useRef } from "react";
-// import { Box, Avatar, Typography, Button, Popover, Backdrop } from "@mui/material";
-// import { motion } from "framer-motion";
-// import io from "socket.io-client";
-// import Peer from "simple-peer";
-
-// const socket = io("http://localhost:5000", { autoConnect: false });
-
-// const ChatWindow = ({
-//   micOn,
-//   setMicOn,
-//   setUploadOpen,
-// }: {
-//   micOn: boolean;
-//   setMicOn: (state: boolean) => void;
-//   setUploadOpen?: (state: boolean) => void;
-// }) => {
-//   const [speaking, setSpeaking] = useState<"user" | "bot" | null>(null);
-//   const [isConnected, setIsConnected] = useState(false);
-//   const [peer, setPeer] = useState<Peer.Instance | null>(null);
-//   const localStream = useRef<MediaStream | null>(null);
-//   const audioRecorder = useRef<MediaRecorder | null>(null);
-//   const audioChunks = useRef<Blob[]>([]);
-//   const videoRef = useRef<HTMLVideoElement>(null);
-//   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-
-//   useEffect(() => {
-//     const dummyElement = document.createElement("div");
-//     document.body.appendChild(dummyElement);
-//     setAnchorEl(dummyElement as HTMLElement);
-//     return () => {
-//       document.body.removeChild(dummyElement);
-//     };
-//   }, []);
-
-//   const handleStartChat = async () => {
-//     try {
-//       socket.connect();
-//       setIsConnected(true);
-//       setAnchorEl(null);
-//       setTimeout(() => setUploadOpen && setUploadOpen(true), 2600);
-//     } catch (error) {
-//       console.error("Failed to connect to socket:", error);
-//     }
-//   };
-
-//   useEffect(() => {
-//     if (!isConnected) return;
-
-//     const handleBotAudio = (data: { audioBase64: string }) => {
-//       const audio = new Audio(`data:audio/mp3;base64,${data.audioBase64}`);
-//       audio.onplay = () => setSpeaking("bot");
-//       audio.onended = () => setSpeaking(null);
-//       audio.play().catch((err) => console.error("Bot audio playback failed:", err));
-//     };
-
-//     socket.on("bot-audio", handleBotAudio);
-//     return () => {
-//       socket.off("bot-audio", handleBotAudio);
-//     };
-//   }, [isConnected]);
-
-
-//   useEffect(() => {
-//     if (!isConnected || !micOn) {
-//       if (audioRecorder.current?.state === "recording") audioRecorder.current.stop();
-//       if (localStream.current) localStream.current.getAudioTracks().forEach((track) => track.stop());
-//       return;
-//     }
-
-//     const startAudio = async () => {
-//       try {
-//         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-//         localStream.current = stream;
-//         audioRecorder.current = new MediaRecorder(stream);
-
-//         audioChunks.current = []; // Reset chunks before starting
-
-//         // Push chunks whenever data is available
-//         audioRecorder.current.ondataavailable = (event) => {
-//           if (event.data.size > 0) {
-//             audioChunks.current.push(event.data);
-//           }
-//         };
-
-//         audioRecorder.current.onstop = async () => {
-//           const audioBlob = new Blob(audioChunks.current, { type: "audio/webm" });
-//           audioChunks.current = []; // Reset chunks after processing
-
-//           const base64Audio = await blobToBase64(audioBlob);
-//           console.log(base64Audio);
-//           socket.emit("user-audio", { base64Audio });
-
-//           setSpeaking(null);
-//         };
-
-//         // Start recording with a timeslice (e.g., every second)
-//         audioRecorder.current.start(1000); // Collects data every second
-
-//         setSpeaking("user");
-//       } catch (err) {
-//         console.error("Mic setup failed:", err);
-//         setMicOn(false);
-//       }
-//     };
-
-//     startAudio();    
-
-//     return () => {
-//       if (audioRecorder.current?.state === "recording") audioRecorder.current.stop();
-//       if (localStream.current) localStream.current.getAudioTracks().forEach((track) => track.stop());
-//     };
-//   }, [micOn, isConnected, setMicOn]);
-
-//   const blobToBase64 = (blob: Blob): Promise<string> => {
-//     return new Promise((resolve) => {
-//       const reader = new FileReader();
-//       reader.onloadend = () => resolve(reader.result as string);
-//       reader.readAsDataURL(blob);
-//     });
-//   };
-
-//   //vedio stream man
-//   useEffect(() => {
-//     if (!isConnected) return;
-
-//     const setupWebRTC = async () => {
-//       try {
-//         const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-//         localStream.current = stream;
-//         if (videoRef.current) videoRef.current.srcObject = stream;
-
-//         const newPeer = new Peer({ initiator: true, trickle: false, stream });
-
-//         newPeer.on("signal", (signalData) => {
-//           // console.log("Sending user-offer:", signalData);
-//           socket.emit("message", signalData);
-//         });
-
-//         newPeer.on("error", (err) => console.error("Peer error:", err));
-//         newPeer.on("connect", () => console.log("Peer connected"));
-
-//         socket.on("invigilator-answer", (answer) => {
-//           // console.log("Received invigilator-answer:", answer);
-//           newPeer.signal(answer);
-//         });
-
-//         // Start capturing frames and sending as Base64
-//         startBase64Streaming(stream);
-
-//         setPeer(newPeer);
-//       } catch (err) {
-//         console.error("WebRTC setup failed:", err);
-//       }
-//     };
-
-//     const startBase64Streaming = (stream: any) => {
-//       const video = document.createElement("video");
-//       video.srcObject = stream;
-//       video.play();
-
-//       const canvas = document.createElement("canvas");
-//       const ctx = canvas.getContext("2d");
-
-//       setInterval(() => {
-//         canvas.width = video.videoWidth;
-//         canvas.height = video.videoHeight;
-//         ctx!.drawImage(video, 0, 0, canvas.width, canvas.height);
-//         const base64Frame = canvas.toDataURL("image/jpeg"); // Convert frame to Base64
-//         // console.log(base64Frame);
-
-//         socket.emit("message", base64Frame); // Send Base64 frame
-//       }, 100); // Send every 100ms (adjust based on network conditions)
-//     };
-
-//     setupWebRTC();
-
-//     return () => {
-//       socket.off("invigilator-answer");
-//       if (peer) peer.destroy();
-//       if (localStream.current) localStream.current.getTracks().forEach((track) => track.stop());
-//     };
-//   }, [isConnected]);
-
-//   return (
-//     <Box
-//       sx={{
-//         display: "flex",
-//         flexDirection: "column",
-//         justifyContent: "center",
-//         alignItems: "center",
-//         minHeight: "calc(100vh - 64px)",
-//         px: { xs: 2, sm: 3, md: 4 },
-//       }}
-//     >
-//       {!isConnected && (
-//         <Backdrop open={Boolean(anchorEl)} sx={{ backdropFilter: "blur(5px)", zIndex: 1300 }}>
-//           <Popover
-//             open={Boolean(anchorEl)}
-//             anchorEl={anchorEl}
-//             anchorOrigin={{ vertical: "center", horizontal: "center" }}
-//             transformOrigin={{ vertical: "center", horizontal: "center" }}
-//           >
-//             <Box
-//               sx={{
-//                 p: { xs: 2, sm: 3, md: 4 },
-//                 bgcolor: "white",
-//                 borderRadius: 2,
-//                 textAlign: "center",
-//                 maxWidth: { xs: "90vw", sm: "400px" },
-//               }}
-//             >
-//               <Typography variant="h6" sx={{ fontSize: { xs: "1rem", sm: "1.25rem" } }}>
-//                 Welcome to the AI Interview
-//               </Typography>
-//               <Typography color="error" sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}>
-//                 Please allow microphone and camera access.
-//               </Typography>
-//               <Button
-//                 variant="contained"
-//                 color="primary"
-//                 onClick={handleStartChat}
-//                 sx={{ mt: 2, fontSize: { xs: "0.875rem", sm: "1rem" } }}
-//               >
-//                 Start Chat
-//               </Button>
-//             </Box>
-//           </Popover>
-//         </Backdrop>
-//       )}
-//       <Box
-//         sx={{
-//           display: "flex",
-//           flexDirection: { xs: "column", md: "row" },
-//           gap: { xs: 2, sm: 3, md: 4 },
-//           width: "100%",
-//           maxWidth: "1200px",
-//           justifyContent: "center",
-//         }}
-//       >
-//         <motion.div
-//           animate={{ scale: speaking === "user" ? 1.05 : 1 }}
-//           style={{
-//             padding: "20px",
-//             borderRadius: "20px",
-//             textAlign: "center",
-//             backgroundColor: "#fff",
-//             boxShadow: speaking === "user" ? "0 0 20px rgba(0, 255, 0, 0.5)" : "0 0 10px rgba(0,0,0,0.1)",
-//             width: "100%",
-//           }}
-//         >
-//           <video
-//             autoPlay
-//             playsInline
-//             muted
-//             ref={videoRef}
-//             style={{
-//               width: "100%",
-//               borderRadius: "10px",
-//               display: "block",
-//             }}
-//           />
-//           <Typography variant="h6" mt={2} sx={{ fontSize: { xs: "1rem", sm: "1.25rem" } }}>
-//             You
-//           </Typography>
-//         </motion.div>
-//         <motion.div
-//           animate={{ scale: speaking === "bot" ? 1.01 : 1 }}
-//           style={{
-//             display: "flex",
-//             flexDirection: "column",
-//             alignItems: "center",
-//             padding: "20px",
-//             borderRadius: "20px",
-//             textAlign: "center",
-//             backgroundColor: "#fff",
-//             boxShadow: speaking === "bot" ? "0 0 20px rgba(0, 0, 255, 0.5)" : "0 0 10px rgba(0,0,0,0.1)",
-//             width: "100%",
-//           }}
-//         >
-//           <Avatar
-//             src="https://i.pravatar.cc/150?img=32"
-//             sx={{ width: { xs: 80, sm: 100 }, height: { xs: 80, sm: 100 }, margin: "auto" }}
-//           />
-//           <Typography variant="h6" mt={2} sx={{ fontSize: { xs: "1rem", sm: "1.25rem" } }}>
-//             AI Interviewer
-//           </Typography>
-//         </motion.div>
-//       </Box>
-//     </Box>
-//   );
-// };
-
-// export default ChatWindow;
-
 import { useState, useEffect, useRef } from "react";
 import { Box, Avatar, Typography, Button, Popover, Backdrop } from "@mui/material";
 import { motion } from "framer-motion";
 import io from "socket.io-client";
 import Peer from "simple-peer";
 
-const socket = io("http://localhost:5000", { autoConnect: false });
+const socket = io("http://localhost:8000", { autoConnect: false });
 
 const ChatWindow = ({
   micOn,
@@ -322,6 +27,7 @@ const ChatWindow = ({
   const localStream = useRef<MediaStream | null>(null);
   const audioRecorder = useRef<MediaRecorder | null>(null);
   const audioChunks = useRef<Blob[]>([]);
+  const receivedVideoRef = useRef<any>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const resumeAnchorEl = useRef<HTMLElement | null>(null); // Anchor for resume popup
   const permissionsAnchorEl = useRef<HTMLElement | null>(null); // Anchor for permissions popup
@@ -361,8 +67,8 @@ const ChatWindow = ({
   useEffect(() => {
     if (!isConnected) return;
 
-    const handleBotAudio = (data: { audioBase64: string }) => {
-      const audio = new Audio(`data:audio/mp3;base64,${data.audioBase64}`);
+    const handleBotAudio = (data: string) => { // Adjust type to match raw base64 string
+      const audio = new Audio(`data:audio/wav;base64,${data}`); // Change to WAV
       audio.onplay = () => setSpeaking("bot");
       audio.onended = () => setSpeaking(null);
       audio.play().catch((err) => console.error("Bot audio playback failed:", err));
@@ -398,7 +104,7 @@ const ChatWindow = ({
           const audioBlob = new Blob(audioChunks.current, { type: "audio/webm" });
           audioChunks.current = [];
           const base64Audio = await blobToBase64(audioBlob);
-          socket.emit("user-audio", { base64Audio });
+          socket.emit("user-audio", base64Audio); // Send raw base64 string
           setSpeaking(null);
         };
 
@@ -418,13 +124,13 @@ const ChatWindow = ({
     };
   }, [micOn, isConnected, setMicOn]);
 
-  const blobToBase64 = (blob: Blob): Promise<string> => {
-    return new Promise((resolve) => {
+  // Helper function (ensure this is defined)
+  const blobToBase64 = (blob: Blob): Promise<string> =>
+    new Promise((resolve) => {
       const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result as string);
+      reader.onloadend = () => resolve((reader.result as string).split(',')[1]); // Extract base64 part
       reader.readAsDataURL(blob);
     });
-  };
 
   // Video streaming setup
   useEffect(() => {
@@ -437,16 +143,22 @@ const ChatWindow = ({
         if (videoRef.current) videoRef.current.srcObject = stream;
 
         const newPeer = new Peer({ initiator: true, trickle: false, stream });
-
-        newPeer.on("signal", (signalData) => {
+        newPeer.on("signal", (signalData: any) => {
           socket.emit("message", signalData);
         });
 
-        newPeer.on("error", (err) => console.error("Peer error:", err));
+        newPeer.on("error", (err: any) => console.error("Peer error:", err));
         newPeer.on("connect", () => console.log("Peer connected"));
 
-        socket.on("invigilator-answer", (answer) => {
-          newPeer.signal(answer);
+        socket.on("processed_frame", (base64Frame) => {
+
+          if (receivedVideoRef.current) {
+            const prefixedBase64 = base64Frame.startsWith("data:image/jpeg;base64,")
+              ? base64Frame
+              : `data:image/jpeg;base64,${base64Frame}`;
+            receivedVideoRef.current.src = prefixedBase64;
+
+          }
         });
 
         startBase64Streaming(stream);
@@ -471,6 +183,7 @@ const ChatWindow = ({
         const base64Frame = canvas.toDataURL("image/jpeg");
         socket.emit("message", base64Frame);
       }, 100);
+
     };
 
     setupWebRTC();
@@ -579,8 +292,9 @@ const ChatWindow = ({
             display: "flex",
             flexDirection: { xs: "column", md: "row" },
             gap: { xs: 2, sm: 3, md: 4 },
-            width: "100%",
-            maxWidth: "1200px",
+            width: "90vw",
+            // maxWidth: "90vw",
+            height: "80vh",
             justifyContent: "center",
           }}
         >
@@ -595,13 +309,11 @@ const ChatWindow = ({
               width: "100%",
             }}
           >
-            <video
-              autoPlay
-              playsInline
-              muted
-              ref={videoRef}
+            <img
+              ref={receivedVideoRef}
               style={{
                 width: "100%",
+                height: "100%",
                 borderRadius: "10px",
                 display: "block",
               }}
@@ -626,7 +338,7 @@ const ChatWindow = ({
           >
             <Avatar
               src="https://i.pravatar.cc/150?img=32"
-              sx={{ width: { xs: 80, sm: 100 }, height: { xs: 80, sm: 100 }, margin: "auto" }}
+              sx={{ width: { xs: 80, sm: 100, md: "160px" }, height: { xs: 80, sm: 100, md: "160px" }, margin: "auto" }}
             />
             <Typography variant="h6" mt={2} sx={{ fontSize: { xs: "1rem", sm: "1.25rem" } }}>
               AI Interviewer
