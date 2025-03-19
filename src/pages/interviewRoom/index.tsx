@@ -5,6 +5,7 @@ import ChatWindow from "./chatWindow";
 import ResumeUpload from "./resumeUpload";
 import { useAuth } from "../../hooks/useAuth";
 import ListenerWindow from "./chatInvigilator";
+import AnimatedMicButton from "../../components/mic/mic";
 
 const InterviewRoom = () => {
   const [micOn, setMicOn] = useState(false);
@@ -17,7 +18,7 @@ const InterviewRoom = () => {
   const isAdmin = user === "admin" || window.location.pathname.includes("monitoring"); 
   
   return (
-    <Box sx={{ height: "100vh", display: "flex", flexDirection: "column", backgroundColor: isAdmin ? "grey" : "#f9f9f9" }}>
+    <Box sx={{ height: "100vh", display: "flex", flexDirection: "column", backgroundColor: isAdmin ? "grey" : "" }}>
       {/* Chat Window */}
       <Container sx={{ flex: 1 }}>
         {isAdmin ? (
@@ -30,7 +31,7 @@ const InterviewRoom = () => {
       {/* Mic Control */}
       {!isAdmin &&
         <>
-          <Box sx={{ position: "absolute", bottom: 20, left: "50%", transform: "translateX(-50%)" }}>
+          {/* <Box sx={{ position: "absolute", bottom: 20, left: "50%", transform: "translateX(-50%)" }}>
             <Button
               variant="contained"
               color={micOn ? "error" : "primary"}
@@ -41,7 +42,8 @@ const InterviewRoom = () => {
             >
               {micOn ? "Mute" : "Speak"}
             </Button>
-          </Box>
+          </Box> */}
+          <AnimatedMicButton uploadOpen={uploadOpen} micOn={micOn} setMicOn={setMicOn}/>
           {/* Resume Upload Popup */}
           <ResumeUpload open={uploadOpen} onClose={() => setUploadOpen(false)} setShowPermissionsPopup={setShowPermissionsPopup}/>
         </>

@@ -3,16 +3,21 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './pages/login';
 import Interview from './pages/interviewRoom';
 import { AuthProvider } from './context/authContext';
+import Layout from './components/layout';
+import Analytics from './pages/analytics';
 
 function App() {
   return (
     <AuthProvider>
-    <Router>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/interview/:roomId" element={<Interview />} />
-      </Routes>
-    </Router>
+      <Router>
+        <Routes>
+          <Route element={<Layout />}>
+            <Route path="/" element={<Login />} />
+            <Route path="/interview/:roomId" element={<Interview />} />
+            <Route path="/analytics" element={<Analytics/>}/>
+            </Route>
+        </Routes>
+      </Router>
     </AuthProvider>
   );
 }

@@ -6,7 +6,7 @@ const Layout = () => {
   const location = useLocation();
 
   // Hide Navbar for login page
-  const showNavbar = location.pathname !== "/login";
+  const showNavbar = location.pathname !== "/";
 
   return (
     <Box sx={{ height: "100vh", display: "flex", flexDirection: "column" }}>
