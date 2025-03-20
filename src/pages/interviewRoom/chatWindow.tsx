@@ -50,7 +50,7 @@ const ChatWindow = ({
         icon: "success"
       }).then((result) => {
         if (result.isConfirmed) {
-          navigate("/analytics");
+          window.location.href = "/analytics";
         }
       });
     };

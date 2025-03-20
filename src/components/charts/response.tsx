@@ -14,7 +14,7 @@ const AnalyticsCharts = ({data}:any) => {
   ];
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "row", gap: 4, p: 3 }}>
+    <Box sx={{ width:"100%" }}>
       
       {/* Response Time Line Chart */}
       {/* <Card sx={{ p: 2, borderRadius: 3, boxShadow: 3 }}>

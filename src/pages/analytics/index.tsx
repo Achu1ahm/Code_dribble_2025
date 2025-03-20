@@ -1,39 +1,69 @@
-import { useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 import AnalyticsCharts from "../../components/charts/response";
 import CircularScoreDisplay from "../../components/score/score";
 import { Box } from "@mui/material";
+import VideoAnalysisDashboard from "../../components/charts/vedioAnalytics";
 
 type FeedbackData = {
+    times_repeated: number,
     scores: { technical_skills: number; communication_skills: number; attitude_professionalism: number };
     final_rating: number;
     recommendation_status: string;
-  };
+};
 
-  
+type IntervalStat = {
+    Interval: number;
+    "Looking Away": number;
+    "Looking at Interviewer": number;
+};
+
+type VideoAnalyticsData = {
+    "Interval Stats": IntervalStat[];
+    "Max Consecutive Off-Focus Frames": number;
+    "Total Frames": number;
+    "Total Looking Away": number;
+    "Total Looking at Interviewer": number;
+    "remaining_frames": number;
+    "total_away_percentage": number;
+    "total_gaze_percentage": number;
+};
+
+
 const Analytics = () => {
-    const [data, setData] = useState<any>(null);
+    const [audiodata, setAudioData] = useState<FeedbackData | null>(null);
+    const [videoAnalyticsData, setVideoAnalyticsData] = useState<VideoAnalyticsData | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        console.log("who let the dogs out");
-        
-      const fetchData = async () => {
-        try {
-          const response = await fetch("http://localhost:8000/send-feedback");
-          if (!response.ok) {
-            throw new Error("Network response was not ok");
-          }
-          const result = await response.json();
-          console.log();
-          
-          setData(result.content);
-        } catch (error) {
-          console.error("Error fetching data:", error);
-        }
-      };
-  
-      fetchData();
+
+        const fetchData = async () => {
+            try {
+                const [feedbackResponse, videoAnalyticsResponse] = await Promise.all([
+                    fetch("http://localhost:8000/send-feedback"),
+                    fetch("http://localhost:8000/video-analysis")
+                ]);
+
+                if (!feedbackResponse.ok || !videoAnalyticsResponse.ok) {
+                    throw new Error("One or more requests failed");
+                }
+
+                const feedbackResult = await feedbackResponse.json();
+                const videoAnalyticsResult = await videoAnalyticsResponse.json();
+
+                setAudioData(feedbackResult);
+                setVideoAnalyticsData(videoAnalyticsResult);
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                setError("Error fetching data");
+            }
+            finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
     }, []);
-  
+
 
     // const data = {
     //     "questions": [
@@ -83,54 +113,71 @@ const Analytics = () => {
     //     "recommendation_status": "Not Recommended"
     // };
 
-    
+
 
     return (
-        // <>
-        //     {!data ? (
-        //         <Box sx={{ textAlign: "center", padding: 2 }}>Loading...</Box>
-        //     ) : (
+        <>
+            {loading ? (
+                <Box sx={{ textAlign: "center", padding: 2 }}>Loading...</Box>
+            ) : (
                 <>
-                    {/* <Box
+                    <Box
                         sx={{
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
                             padding: 1,
-                            backgroundColor: data!.recommendation_status === "Recommended" ? "success.light" : "error.light",
+                            backgroundColor: audiodata!.recommendation_status === "Recommended" ? "success.light" : "error.light",
                             color: "white",
                             borderRadius: 1,
                             fontWeight: "bold"
                         }}
                     >
-                        {data.recommendation_status}
-                    </Box> */}
-                    {/* <Box
-                        sx={{
-                            display: "flex",
-                            flexDirection: "row",
-                            alignItems: "start",
-                            justifyContent: "center",
-                            height: "100%",
-                            pt: 4
-                        }}
-                    >
-                        <CircularScoreDisplay data={data} />
+                        {audiodata!.recommendation_status}
                     </Box>
                     <Box
                         sx={{
                             display: "flex",
-                            flexDirection: "row",
-                            alignItems: "start",
+                            alignItems: "center",
                             justifyContent: "center",
-                            height: "100%",
-                        }}
-                    >
-                        <AnalyticsCharts data={data} />
-                    </Box> */}
+                            flexDirection: "row",
+                            padding: 1,
+                            pt: 4,
+                            gap:4
+                        }} >
+                        <Box
+                            sx={{
+                                display: "flex",
+                                flexDirection: "column",
+                                alignItems: "start",
+                                justifyContent: "center",
+                                height: "100%",
+                                gap: 2
+                            }}
+                        >
+
+                            <CircularScoreDisplay data={audiodata} />
+                            <AnalyticsCharts data={audiodata} />
+
+
+                        </Box>
+                        <Box
+                            sx={{
+                                display: "flex",
+                                flexDirection: "row",
+                                alignItems: "start",
+                                justifyContent: "start",
+                                height: "100%",
+                            }}
+                        >
+                            <VideoAnalysisDashboard data={videoAnalyticsData!} />
+                        </Box>
+                    </Box>
                 </>
+            )}
+        </>
     );
-    
+
 }
 
 export default Analytics;
