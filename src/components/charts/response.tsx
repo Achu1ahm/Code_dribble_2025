@@ -9,15 +9,15 @@ const COLORS = ["#0088FE", "#FFBB28"];
 const AnalyticsCharts = ({data}:any) => {
   // Data for Pie Chart (Repeat vs. No Repeat)
   const repeatData = [
-    { name: "Repeated Questions", value: data.filter((q:any) => q.repeats > 0).length },
-    { name: "Non-Repeated Questions", value: data.filter((q:any) => q.repeats === 0).length },
+    { name: "Repeated Questions", value: data.times_repeated},
+    { name: "Non-Repeated Questions", value: 10 },
   ];
 
   return (
     <Box sx={{ display: "flex", flexDirection: "row", gap: 4, p: 3 }}>
       
       {/* Response Time Line Chart */}
-      <Card sx={{ p: 2, borderRadius: 3, boxShadow: 3 }}>
+      {/* <Card sx={{ p: 2, borderRadius: 3, boxShadow: 3 }}>
         <CardContent>
           <Typography variant="h5" component="h2" align="center" fontWeight="bold" sx={{ mb: 4 }}>
             Response Time Trend
@@ -31,7 +31,7 @@ const AnalyticsCharts = ({data}:any) => {
             </LineChart>
           </ResponsiveContainer>
         </CardContent>
-      </Card>
+      </Card> */}
 
       {/* Repeat Question Pie Chart */}
       <Card sx={{ p: 2, borderRadius: 3, boxShadow: 3 }}>

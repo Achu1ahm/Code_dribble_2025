@@ -4,7 +4,6 @@ import CircularScoreDisplay from "../../components/score/score";
 import { Box } from "@mui/material";
 
 type FeedbackData = {
-    questions: { question: string; response: string; response_time: number; repeats: number }[];
     scores: { technical_skills: number; communication_skills: number; attitude_professionalism: number };
     final_rating: number;
     recommendation_status: string;
@@ -12,9 +11,11 @@ type FeedbackData = {
 
   
 const Analytics = () => {
-    const [data, setData] = useState<FeedbackData | null>(null);
+    const [data, setData] = useState<any>(null);
 
     useEffect(() => {
+        console.log("who let the dogs out");
+        
       const fetchData = async () => {
         try {
           const response = await fetch("http://localhost:8000/send-feedback");
@@ -22,7 +23,9 @@ const Analytics = () => {
             throw new Error("Network response was not ok");
           }
           const result = await response.json();
-          setData(result);
+          console.log();
+          
+          setData(result.content);
         } catch (error) {
           console.error("Error fetching data:", error);
         }
@@ -83,12 +86,12 @@ const Analytics = () => {
     
 
     return (
-        <>
-            {!data ? (
-                <Box sx={{ textAlign: "center", padding: 2 }}>Loading...</Box>
-            ) : (
+        // <>
+        //     {!data ? (
+        //         <Box sx={{ textAlign: "center", padding: 2 }}>Loading...</Box>
+        //     ) : (
                 <>
-                    <Box
+                    {/* <Box
                         sx={{
                             display: "flex",
                             alignItems: "center",
@@ -101,8 +104,8 @@ const Analytics = () => {
                         }}
                     >
                         {data.recommendation_status}
-                    </Box>
-                    <Box
+                    </Box> */}
+                    {/* <Box
                         sx={{
                             display: "flex",
                             flexDirection: "row",
@@ -123,11 +126,9 @@ const Analytics = () => {
                             height: "100%",
                         }}
                     >
-                        <AnalyticsCharts data={data.questions} />
-                    </Box>
+                        <AnalyticsCharts data={data} />
+                    </Box> */}
                 </>
-            )}
-        </>
     );
     
 }

@@ -10,7 +10,7 @@ import { formatName, getScoreColor, calculateStrokeDasharray } from '../../utils
 
 const CircularScoreDisplay = ({ data }: any) => {
     // Transform the object format to array format for rendering
-    const scoresArray = Object.entries(data.scores).map(([key, value]) => ({
+    const scoresArray = Object.entries(data?.scores).map(([key, value]) => ({
         name: formatName(key),
         score: value
     }));
