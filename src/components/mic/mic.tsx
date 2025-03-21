@@ -6,7 +6,7 @@ import { keyframes } from '@mui/system';
 const pulseAnimation = keyframes`
   0% {
     transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(220, 0, 0, 0.7);
+    box-shadow: 0 0 0 0 rgba(0, 99, 220, 0.7);
   }
   
   70% {
@@ -46,33 +46,22 @@ const AnimatedMicButton = ({ uploadOpen, micOn, setMicOn }:{
         sx={{
           width: 64,
           height: 64,
-          backgroundColor: micOn ? 'error.main' : 'primary.main',
+          backgroundColor: !micOn ? 'error.main' : 'primary.main',
           color: 'white',
           transition: 'all 0.3s ease-in-out',
           '&:hover': {
-            backgroundColor: micOn ? 'error.dark' : 'primary.dark',
+            backgroundColor: !micOn ? 'error.dark' : 'primary.dark',
             transform: 'scale(1.05)',
           },
           animation: micOn ? `${pulseAnimation} 2s infinite` : 'none',
-          boxShadow: micOn 
+          boxShadow: !micOn 
             ? '0 0 10px rgba(220, 0, 0, 0.7)' 
             : '0 4px 8px rgba(0, 0, 0, 0.2)',
         }}
       >
-        {micOn ? <MicOff fontSize="large" /> : <Mic fontSize="large" />}
+        {!micOn ? <MicOff fontSize="large" /> : <Mic fontSize="large" />}
       </IconButton>
       
-      {/* <Box 
-        sx={{ 
-          mt: 1, 
-          fontSize: '0.875rem',
-          color: 'text.secondary',
-          opacity: micOn ? 1 : 0.8,
-          transition: 'opacity 0.3s ease'
-        }}
-      >
-        {micOn ? "Mute" : "Speak"}
-      </Box> */}
     </Box>
   );
 };
