@@ -12,7 +12,7 @@ const Login = () => {
   const handleLogin = () => {
     if (roomId.trim()) {
       login(roomId);
-      if (user == "admin") {
+      if (user === "admin") {
         navigate(`/monitoring`);
       }
       else {

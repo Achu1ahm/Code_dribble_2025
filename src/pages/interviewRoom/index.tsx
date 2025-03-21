@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { Box, Button, Container } from "@mui/material";
-import { MicOff, Mic } from "@mui/icons-material";
+import { Box, Container } from "@mui/material";
 import ChatWindow from "./chatWindow";
 import ResumeUpload from "./resumeUpload";
 import { useAuth } from "../../hooks/useAuth";

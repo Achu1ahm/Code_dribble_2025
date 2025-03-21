@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Box, IconButton } from '@mui/material';
 import { Mic, MicOff } from '@mui/icons-material';
 import { keyframes } from '@mui/system';
@@ -25,7 +25,7 @@ const AnimatedMicButton = ({ uploadOpen, micOn, setMicOn }:{
     micOn: boolean,
     setMicOn: (state:boolean)=>void
 }) => {
-//   const [micOn, setMicOn] = useState(false);
+
   
   return (
     <Box 

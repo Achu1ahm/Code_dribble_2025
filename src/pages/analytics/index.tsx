@@ -51,8 +51,8 @@ const Analytics = () => {
                 const feedbackResult = await feedbackResponse.json();
                 const videoAnalyticsResult = await videoAnalyticsResponse.json();
 
-                setAudioData(feedbackResult);
                 setVideoAnalyticsData(videoAnalyticsResult);
+                setAudioData(feedbackResult);
             } catch (error) {
                 console.error("Error fetching data:", error);
                 setError("Error fetching data");

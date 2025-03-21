@@ -5,23 +5,12 @@ import {
   CardContent, 
   Typography, 
   Grid, 
-  Paper, 
-  CircularProgress, 
-  Tabs, 
-  Tab,
   useTheme
 } from '@mui/material';
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
+import {  
   Tooltip, 
   Legend, 
   ResponsiveContainer,
-  LineChart,
-  Line,
   PieChart,
   Pie,
   Cell
@@ -52,11 +41,14 @@ const VideoAnalysisDashboard: React.FC<VideoAnalysisDashboardProps> = ({data}) =
   const theme = useTheme();
   const [tabValue, setTabValue] = useState(0);
 
+  // Calculate remaining frames correctly
+  const calculatedRemainingFrames = data["Total Frames"] - data["Total Looking Away"] - data["Total Looking at Interviewer"];
+
   // Prepare data for the pie chart
   const pieData = [
     { name: 'Looking Away', value: data["Total Looking Away"] },
     { name: 'Looking at Interviewer', value: data["Total Looking at Interviewer"] },
-    { name: 'Other', value: data["remaining_frames"] }
+    { name: 'Other', value:Math.max(0, calculatedRemainingFrames) }
   ];
 
   const COLORS = [theme.palette.error.main, theme.palette.success.main, theme.palette.grey[400]];
@@ -66,8 +58,8 @@ const VideoAnalysisDashboard: React.FC<VideoAnalysisDashboardProps> = ({data}) =
   };
 
   return (
-    <Box sx={{ maxWidth: 1200,borderRadius:4, boxShadow: 3, padding:2, background:"white" }}>
-      <Typography variant="h5" component="h2" align="center" fontWeight="bold" gutterBottom sx={{ mb: 5,mt:1 }}>
+    <Box sx={{ maxWidth: 1200,borderRadius:4, boxShadow: 3, padding:2, background:"white",minHeight:"95vh" }}>
+      <Typography variant="h5" component="h2" align="center" fontWeight="bold" gutterBottom sx={{ mb:8,mt:5 }}>
         Interview Gaze Analysis Dashboard
       </Typography>
       
@@ -93,7 +85,7 @@ const VideoAnalysisDashboard: React.FC<VideoAnalysisDashboardProps> = ({data}) =
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Typography variant="h4" sx={{ mr: 1 }}>
-                  {data["total_away_percentage"].toFixed(1)}%
+                {((data["Total Looking Away"] / data["Total Frames"]) * 100).toFixed(1)}%
                 </Typography>
               </Box>
             </CardContent>
@@ -108,7 +100,7 @@ const VideoAnalysisDashboard: React.FC<VideoAnalysisDashboardProps> = ({data}) =
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Typography variant="h4" sx={{ mr: 1 }}>
-                  {data["total_gaze_percentage"].toFixed(1)}%
+                {((data["Total Looking at Interviewer"] / data["Total Frames"]) * 100).toFixed(1)}%
                 </Typography>
               </Box>
             </CardContent>
@@ -140,7 +132,7 @@ const VideoAnalysisDashboard: React.FC<VideoAnalysisDashboardProps> = ({data}) =
                 outerRadius={120}
                 fill="#8884d8"
                 dataKey="value"
-                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(1)}%`}
+                label={({ name, value }) => `${name}: ${((value / data["Total Frames"]) * 100).toFixed(1)}%`}
               >
                 {pieData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />

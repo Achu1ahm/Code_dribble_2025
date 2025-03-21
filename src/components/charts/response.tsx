@@ -1,6 +1,6 @@
 import React from "react";
 import { Card, CardContent, Typography, Box } from "@mui/material";
-import { LineChart,Line, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
+import { Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
 
 
 // Colors for the Pie Chart
@@ -48,7 +48,7 @@ const AnalyticsCharts = ({data}:any) => {
                 cx="50%"
                 cy="50%"
                 outerRadius={110}
-                label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                // label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
                 stroke="#fff"
                 strokeWidth={2}
               >
