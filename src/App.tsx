@@ -5,6 +5,7 @@ import Interview from './pages/interviewRoom';
 import { AuthProvider } from './context/authContext';
 import Layout from './components/layout';
 import Analytics from './pages/analytics';
+import UploadPage from './pages/canditateProfile';
 
 function App() {
   return (
@@ -14,8 +15,9 @@ function App() {
           <Route element={<Layout />}>
             <Route path="/" element={<Login />} />
             <Route path="/interview/:roomId" element={<Interview />} />
-            <Route path="/analytics" element={<Analytics/>}/>
-            </Route>
+            <Route path="/analytics" element={<Analytics />} />
+          </Route>
+          <Route path='/candidate-profile' element={<UploadPage/>}/>
         </Routes>
       </Router>
     </AuthProvider>

@@ -53,9 +53,6 @@ const VideoAnalysisDashboard: React.FC<VideoAnalysisDashboardProps> = ({data}) =
 
   const COLORS = [theme.palette.error.main, theme.palette.success.main, theme.palette.grey[400]];
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-    setTabValue(newValue);
-  };
 
   return (
     <Box sx={{ maxWidth: 1200,borderRadius:4, boxShadow: 3, padding:2, background:"white",minHeight:"95vh" }}>

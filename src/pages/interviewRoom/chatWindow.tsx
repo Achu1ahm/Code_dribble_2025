@@ -5,6 +5,7 @@ import Swal from 'sweetalert2'
 import { motion } from "framer-motion";
 import io from "socket.io-client";
 import Peer from "simple-peer";
+import InterviewGuard from "../../components/interviewGuard";
 
 const socket = io("http://localhost:8000", { autoConnect: false });
 
@@ -85,11 +86,41 @@ const ChatWindow = ({
   // Handle permissions and start interview
   const handleStartInterview = async () => {
     try {
+
+      const requestFullscreen = async () => {
+        try {
+          if (document.documentElement.requestFullscreen) {
+            await document.documentElement.requestFullscreen();
+          } else if ((document.documentElement as any).webkitRequestFullscreen) {
+            await (document.documentElement as any).webkitRequestFullscreen();
+          } else if ((document.documentElement as any).mozRequestFullScreen) {
+            await (document.documentElement as any).mozRequestFullScreen();
+          } else if ((document.documentElement as any).msRequestFullscreen) {
+            await (document.documentElement as any).msRequestFullscreen();
+          }
+          return true;
+        } catch (err) {
+          console.error("Fullscreen request failed:", err);
+          return false;
+        }
+      };
+
+      const fullscreenSuccess = await requestFullscreen();
+
+      if (!fullscreenSuccess) {
+        Swal.fire({
+          title: "Fullscreen Required",
+          text: "Please allow fullscreen mode to proceed with the interview.",
+          icon: "warning",
+        });
+        return;
+      }
+
       setShowPermissionsPopup(false);
       socket.connect();
       setIsConnected(true);
     } catch (error) {
-      console.error("Failed to connect to socket:", error);
+      console.error("Failed to connect to socket or permission denied", error);
     }
   };
 
@@ -222,6 +253,13 @@ const ChatWindow = ({
     };
   }, [isConnected]);
 
+  const handleCancel = () => {
+    if (isConnected) {
+      socket.disconnect();
+      setIsConnected(false);
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -234,6 +272,7 @@ const ChatWindow = ({
         position: "relative",
       }}
     >
+       <InterviewGuard isConnected={isConnected} onCancel={handleCancel} />
       {/* Resume Upload Popup*/}
       {showResumePopup && (
         <Backdrop open={true} sx={{ zIndex: 1300 }}>
@@ -296,7 +335,7 @@ const ChatWindow = ({
                 Permissions Required
               </Typography>
               <Typography color="error" sx={{ mt: 1, fontSize: { xs: "0.875rem", sm: "1rem" } }}>
-                Please allow microphone and camera access.
+                Please allow microphone and camera access, and fullscreen access.
               </Typography>
               <Button
                 variant="contained"
