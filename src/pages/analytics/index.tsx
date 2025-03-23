@@ -30,7 +30,7 @@ type VideoAnalyticsData = {
 
 
 const Analytics = () => {
-    const [audiodata, setAudioData] = useState<FeedbackData | null>(null);
+    const [audiodata, setAudioData] = useState<any>(null);
     const [videoAnalyticsData, setVideoAnalyticsData] = useState<VideoAnalyticsData | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -127,13 +127,13 @@ const Analytics = () => {
                             alignItems: "center",
                             justifyContent: "center",
                             padding: 1,
-                            backgroundColor: audiodata!.recommendation_status === "Recommended" ? "success.light" : "error.light",
+                            backgroundColor: audiodata!.report.recommendation_status === "Recommended" ? "success.light" : "error.light",
                             color: "white",
                             borderRadius: 1,
                             fontWeight: "bold"
                         }}
                     >
-                        {audiodata!.recommendation_status}
+                        {audiodata!.report.recommendation_status}
                     </Box>
                     <Box
                         sx={{
