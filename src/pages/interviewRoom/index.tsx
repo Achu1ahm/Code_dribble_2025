@@ -30,18 +30,6 @@ const InterviewRoom = () => {
       {/* Mic Control */}
       {!isAdmin &&
         <>
-          {/* <Box sx={{ position: "absolute", bottom: 20, left: "50%", transform: "translateX(-50%)" }}>
-            <Button
-              variant="contained"
-              color={micOn ? "error" : "primary"}
-              startIcon={micOn ? <MicOff /> : <Mic />}
-              sx={{ mt: 2 }}
-              onClick={() => setMicOn(!micOn)} // Simply toggle the state
-              disabled={uploadOpen} // Disable the button when upload prompt is open
-            >
-              {micOn ? "Mute" : "Speak"}
-            </Button>
-          </Box> */}
           <AnimatedMicButton uploadOpen={uploadOpen} micOn={micOn} setMicOn={setMicOn}/>
           {/* Resume Upload Popup */}
           <ResumeUpload open={uploadOpen} onClose={() => setUploadOpen(false)} setShowPermissionsPopup={setShowPermissionsPopup}/>

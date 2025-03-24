@@ -55,7 +55,7 @@ const VideoAnalysisDashboard: React.FC<VideoAnalysisDashboardProps> = ({data}) =
 
 
   return (
-    <Box sx={{ maxWidth: 1200,borderRadius:4, boxShadow: 3, padding:2, background:"white",minHeight:"95vh" }}>
+    <Box sx={{ maxWidth: 1200,borderRadius:4, boxShadow: 3, padding:2, background:"white",minHeight:"100vh" }}>
       <Typography variant="h5" component="h2" align="center" fontWeight="bold" gutterBottom sx={{ mb:8,mt:5 }}>
         Interview Gaze Analysis Dashboard
       </Typography>
@@ -63,7 +63,7 @@ const VideoAnalysisDashboard: React.FC<VideoAnalysisDashboardProps> = ({data}) =
       {/* Summary Cards */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ height: '100%', bgcolor: theme.palette.primary.light }}>
+          <Card sx={{ height: '100%', bgcolor: theme.palette.primary.light, borderRadius:3 }}>
             <CardContent>
               <Typography variant="h6" color="textSecondary">
                 Total Frames
@@ -75,7 +75,7 @@ const VideoAnalysisDashboard: React.FC<VideoAnalysisDashboardProps> = ({data}) =
           </Card>
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ height: '100%', bgcolor: theme.palette.error.light }}>
+          <Card sx={{ height: '100%', bgcolor: theme.palette.error.light, borderRadius:3 }}>
             <CardContent>
               <Typography variant="h6" color="textSecondary">
                 Looking Away
@@ -90,7 +90,7 @@ const VideoAnalysisDashboard: React.FC<VideoAnalysisDashboardProps> = ({data}) =
         </Grid>
         
         <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ height: '100%', bgcolor: theme.palette.success.light }}>
+          <Card sx={{ height: '100%', bgcolor: theme.palette.success.light, borderRadius:3 }}>
             <CardContent>
               <Typography variant="h6" color="textSecondary">
                 Looking at Interviewer
@@ -105,7 +105,7 @@ const VideoAnalysisDashboard: React.FC<VideoAnalysisDashboardProps> = ({data}) =
         </Grid>
         
         <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ height: '100%', bgcolor: theme.palette.warning.light }}>
+          <Card sx={{ height: '100%', bgcolor: theme.palette.warning.light, borderRadius:3 }}>
             <CardContent>
               <Typography variant="h6" color="textSecondary">
                 Max Consecutive Off-Focus
@@ -118,7 +118,7 @@ const VideoAnalysisDashboard: React.FC<VideoAnalysisDashboardProps> = ({data}) =
         </Grid>
       </Grid>
 
-      <Box sx={{ p: 3, height: 400 }}>
+      <Box sx={{ p: 2, height: 450 }}>
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
@@ -126,7 +126,7 @@ const VideoAnalysisDashboard: React.FC<VideoAnalysisDashboardProps> = ({data}) =
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                outerRadius={120}
+                outerRadius={140}
                 fill="#8884d8"
                 dataKey="value"
                 label={({ name, value }) => `${name}: ${((value / data["Total Frames"]) * 100).toFixed(1)}%`}

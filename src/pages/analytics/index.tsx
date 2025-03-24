@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import AnalyticsCharts from "../../components/charts/response";
 import CircularScoreDisplay from "../../components/score/score";
-import { Box } from "@mui/material";
+import { Box, Button, Dialog, DialogContent, DialogTitle, Typography } from "@mui/material";
 import VideoAnalysisDashboard from "../../components/charts/vedioAnalytics";
 
 type FeedbackData = {
@@ -34,6 +34,8 @@ const Analytics = () => {
     const [videoAnalyticsData, setVideoAnalyticsData] = useState<VideoAnalyticsData | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+
+    const [showJustification, setShowJustification] = useState(false);
 
     useEffect(() => {
 
@@ -134,7 +136,25 @@ const Analytics = () => {
                         }}
                     >
                         {audiodata!.report.recommendation_status}
+                        <Button
+                            variant="outlined"
+                            size="small"
+                            color="inherit"
+                            sx={{ ml: 2 }}
+                            onClick={() => setShowJustification(true)} // Open dialog
+                        >
+                            Show Details
+                        </Button>
                     </Box>
+                    {/* Justification Dialog */}
+                    <Dialog open={showJustification} onClose={() => setShowJustification(false)} fullWidth maxWidth="sm">
+                        <DialogTitle>Justification</DialogTitle>
+                        <DialogContent>
+                            <Typography variant="body1">
+                                {audiodata?.report.justification}
+                            </Typography>
+                        </DialogContent>
+                    </Dialog>
                     <Box
                         sx={{
                             display: "flex",
@@ -143,7 +163,7 @@ const Analytics = () => {
                             flexDirection: "row",
                             padding: 1,
                             pt: 4,
-                            gap:4
+                            gap: 4
                         }} >
                         <Box
                             sx={{

@@ -6,7 +6,7 @@ import { keyframes } from '@mui/system';
 const pulseAnimation = keyframes`
   0% {
     transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(0, 99, 220, 0.7);
+    box-shadow: 0 4px 8px rgba(0, 128, 0, 0.5);
   }
   
   70% {
@@ -46,17 +46,17 @@ const AnimatedMicButton = ({ uploadOpen, micOn, setMicOn }:{
         sx={{
           width: 64,
           height: 64,
-          backgroundColor: !micOn ? 'error.main' : 'primary.main',
+          backgroundColor: !micOn ? 'error.main' : 'success.main',
           color: 'white',
           transition: 'all 0.3s ease-in-out',
           '&:hover': {
-            backgroundColor: !micOn ? 'error.dark' : 'primary.dark',
+            backgroundColor: !micOn ? 'error.dark' : 'success.dark',
             transform: 'scale(1.05)',
           },
           animation: micOn ? `${pulseAnimation} 2s infinite` : 'none',
           boxShadow: !micOn 
             ? '0 0 10px rgba(220, 0, 0, 0.7)' 
-            : '0 4px 8px rgba(0, 0, 0, 0.2)',
+            : '0 4px 8px rgba(0, 128, 0, 0.5)',
         }}
       >
         {!micOn ? <MicOff fontSize="large" /> : <Mic fontSize="large" />}

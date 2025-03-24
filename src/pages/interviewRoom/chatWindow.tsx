@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Box, Avatar, Typography, Button, Popover, Backdrop } from "@mui/material";
+import { Box, Avatar, Typography, Button, Popover, Backdrop,Chip } from "@mui/material";
 import Swal from 'sweetalert2'
 import { motion } from "framer-motion";
 import io from "socket.io-client";
@@ -26,6 +26,9 @@ const ChatWindow = ({
   const [isConnected, setIsConnected] = useState(false);
   const [peer, setPeer] = useState<Peer.Instance | null>(null);
   const [showResumePopup, setShowResumePopup] = useState(true); // Resume popup state
+
+  const [gazeStatus, setGazeStatus] = useState("Looking at Camera");
+
   // Permissions popup state
   const localStream = useRef<MediaStream | null>(null);
   const audioRecorder = useRef<MediaRecorder | null>(null);
@@ -209,15 +212,19 @@ const ChatWindow = ({
         newPeer.on("error", (err: any) => console.error("Peer error:", err));
         newPeer.on("connect", () => console.log("Peer connected"));
 
-        socket.on("processed_frame", (base64Frame) => {
-
-          if (receivedVideoRef.current) {
-            const prefixedBase64 = base64Frame.startsWith("data:image/jpeg;base64,")
-              ? base64Frame
-              : `data:image/jpeg;base64,${base64Frame}`;
-            receivedVideoRef.current.src = prefixedBase64;
-
-          }
+        socket.on("processed_frame", (data) => {
+            // Handle new format with gaze data
+            const { frame, gaze_status } = data;
+            
+            if (receivedVideoRef.current) {
+              const prefixedBase64 = frame.startsWith("data:image/jpeg;base64,")
+                ? frame
+                : `data:image/jpeg;base64,${frame}`;
+              receivedVideoRef.current.src = prefixedBase64;
+            }
+            
+            // Update gaze tracking UI data
+            setGazeStatus(gaze_status);
         });
 
         startBase64Streaming(stream);
@@ -351,64 +358,6 @@ const ChatWindow = ({
       )}
       {/* Main Interview UI */}
       {isConnected && (
-        // <Box
-        //   sx={{
-        //     display: "flex",
-        //     flexDirection: { xs: "column", md: "row" },
-        //     gap: { xs: 2, sm: 3, md: 4 },
-        //     width: "90vw",
-        //     // maxWidth: "90vw",
-        //     height: "80vh",
-        //     justifyContent: "center",
-        //   }}
-        // >
-        //   <motion.div
-        //     animate={{ scale: speaking === "user" ? 1.05 : 1 }}
-        //     style={{
-        //       padding: "20px",
-        //       borderRadius: "20px",
-        //       textAlign: "center",
-        //       backgroundColor: "#fff",
-        //       boxShadow: speaking === "user" ? "0 0 20px rgba(0, 255, 0, 0.5)" : "0 0 10px rgba(0,0,0,0.1)",
-        //       width: "100%",
-        //     }}
-        //   >
-        //     <img
-        //       ref={receivedVideoRef}
-        //       style={{
-        //         width: "100%",
-        //         height: "100%",
-        //         borderRadius: "10px",
-        //         display: "block",
-        //       }}
-        //     />
-        //     <Typography variant="h6" mt={2} sx={{ fontSize: { xs: "1rem", sm: "1.25rem" } }}>
-        //       You
-        //     </Typography>
-        //   </motion.div>
-        //   <motion.div
-        //     animate={{ scale: speaking === "bot" ? 1.01 : 1 }}
-        //     style={{
-        //       display: "flex",
-        //       flexDirection: "column",
-        //       alignItems: "center",
-        //       padding: "20px",
-        //       borderRadius: "20px",
-        //       textAlign: "center",
-        //       backgroundColor: "#fff",
-        //       boxShadow: speaking === "bot" ? "0 0 20px rgba(0, 0, 255, 0.5)" : "0 0 10px rgba(0,0,0,0.1)",
-        //       width: "100%",
-        //     }}
-        //   >
-        //     <Avatar
-        //       src="https://i.pravatar.cc/150?img=32"
-        //       sx={{ width: { xs: 80, sm: 100, md: "160px" }, height: { xs: 80, sm: 100, md: "160px" }, margin: "auto" }}
-        //     />
-        //     <Typography variant="h6" mt={2} sx={{ fontSize: { xs: "1rem", sm: "1.25rem" } }}>
-        //       AI Interviewer
-        //     </Typography>
-        //   </motion.div>
-        // </Box>
         <Box
           sx={{
             display: "flex",
@@ -437,6 +386,32 @@ const ChatWindow = ({
               justifyContent: "left",
             }}
           >
+            <Box
+              sx={{
+                position: "absolute",
+                top: "10px",
+                left: "10px",
+                zIndex: 10,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-start",
+                gap: 1,
+                backgroundColor: "rgba(0,0,0,0.6)",
+                padding: "12px",
+                borderRadius: "8px",
+              }}
+            >
+              <Chip
+                label={ gazeStatus === "Looking at Camera" ? "Focused" : "Looking Away"}
+                color={gazeStatus === "Looking at Camera" ? "success" : "error"}
+                size="medium"
+                sx={{ fontWeight: "bold",
+                  fontSize: "1rem",  
+                  padding: "10px 16px"          
+
+                 }}
+              />
+            </Box>
             <img
               ref={receivedVideoRef}
               style={{
