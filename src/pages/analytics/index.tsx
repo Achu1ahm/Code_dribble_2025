@@ -150,9 +150,11 @@ const Analytics = () => {
                     <Dialog open={showJustification} onClose={() => setShowJustification(false)} fullWidth maxWidth="sm">
                         <DialogTitle>Justification</DialogTitle>
                         <DialogContent>
-                            <Typography variant="body1">
-                                {audiodata?.report.justification}
-                            </Typography>
+                            {audiodata?.report.justification?.split('. ').map((sentence:any, index:number) => (
+                                <Typography key={index} variant="body1" sx={{ mb: 1 }}>
+                                    • {sentence}.
+                                </Typography>
+                            ))}
                         </DialogContent>
                     </Dialog>
                     <Box
@@ -178,7 +180,6 @@ const Analytics = () => {
 
                             <CircularScoreDisplay data={audiodata} />
                             <AnalyticsCharts data={audiodata} />
-
 
                         </Box>
                         <Box
